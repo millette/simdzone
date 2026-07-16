@@ -1223,3 +1223,69 @@ void contiguous_escaped_reset(void** state)
     NULL);
   assert_int_equal(result, ZONE_SUCCESS);
 }
+
+/*!cmocka */
+void delimiters_overflow_txt(void** state)
+{
+  /* Check for delimiters.tape overflow from oversized TXT record. */
+  const char* zone_start_part =
+"$ORIGIN example.\n"
+";$TTL 3600\n"
+"@	IN	SOA	ns postmaster.mail 2147483647 3600 900 1814400 900\n"
+";example.	IN	SOA	ns postmaster.mail 2147483647 3600 900 1814400 900\n"
+"	;IN	NS	ns\n"
+";ns	IN	A	203.0.113.53\n"
+";ns	IN	AAAA	2001:db8:feed:beef::53\n"
+"\n"
+"big IN TXT (\n"
+	;
+  const char* zone_end_part =
+")\n"
+"foo	IN	A	203.0.113.54\n"
+	;
+  char* zone, *zone_at;
+  size_t zone_str_len, zone_left;
+  int num_items = 6500, i;
+  static uint8_t origin[] = { 0 };
+  zone_parser_t parser;
+  zone_name_buffer_t name;
+  zone_rdata_buffer_t rdata;
+  zone_buffers_t buffers = { 1, &name, &rdata };
+  zone_options_t options;
+  int32_t result;
+  (void) state;
+
+  memset(&options, 0, sizeof(options));
+  options.accept.callback = contiguous_escaped_start_cb;
+  options.origin.octets = origin;
+  options.origin.length = sizeof(origin);
+  options.default_ttl = 3600;
+  options.default_class = ZONE_CLASS_IN;
+
+  /* Build the zone string */
+  zone_str_len = strlen(zone_start_part) + num_items * 2 + 1 /* newline */ +
+    strlen(zone_end_part) + 1 /* zero */;
+  zone = malloc(zone_str_len);
+  assert_non_null(zone);
+
+  zone_at = zone;
+  zone_left = zone_str_len;
+  memmove(zone_at, zone_start_part, strlen(zone_start_part));
+  zone_at += strlen(zone_start_part);
+  zone_left -= strlen(zone_start_part);
+  for(i=0; i<num_items; i++) {
+    snprintf(zone_at, zone_left, " A");
+    zone_at += 2;
+    zone_left -= 2;
+  }
+  snprintf(zone_at, zone_left, "\n");
+  zone_at += 1;
+  zone_left -= 1;
+  snprintf(zone_at, zone_left, "%s", zone_end_part);
+
+  result = zone_parse_string(&parser, &options, &buffers, zone, strlen(zone),
+    NULL);
+  assert_int_equal(result, ZONE_SUCCESS);
+
+  free(zone);
+}
