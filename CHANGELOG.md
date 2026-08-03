@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for the HHIT and BRID RR types.
 - Support for the "docpath", "pvd" and "oots" SVCB Service Parameters
 
+### Fixed
+
+- TXT records with more than 6465 rdata elements, crashes simdzone parsing.
+  Thanks to Qifan Zhang, Palo Alto Networks, for the report.
+
 ## [0.2.5] - 2026-07-07
 
 ### Added
