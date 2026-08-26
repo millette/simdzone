@@ -1264,8 +1264,8 @@ void delimiters_overflow_txt(void** state)
 
   /* Build the zone string */
   zone_str_len = strlen(zone_start_part) + ((size_t)num_items) * 2 + 1 /* newline */ +
-    strlen(zone_end_part) + 1 /* zero */;
-  zone = malloc(zone_str_len);
+    strlen(zone_end_part) + 1 /* zero */ + ZONE_BLOCK_SIZE /* padding for simd operations */;
+  zone = calloc(1, zone_str_len);
   assert_non_null(zone);
 
   zone_at = zone;
