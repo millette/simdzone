@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - TXT records with more than 6465 rdata elements, crashes simdzone parsing.
   Thanks to Qifan Zhang, Palo Alto Networks, for the report.
+- Fix unit test implicit conversion change of signedness warning.
 
 ## [0.2.5] - 2026-07-07
 

@@ -1263,7 +1263,7 @@ void delimiters_overflow_txt(void** state)
   options.default_class = ZONE_CLASS_IN;
 
   /* Build the zone string */
-  zone_str_len = strlen(zone_start_part) + num_items * 2 + 1 /* newline */ +
+  zone_str_len = strlen(zone_start_part) + ((size_t)num_items) * 2 + 1 /* newline */ +
     strlen(zone_end_part) + 1 /* zero */;
   zone = malloc(zone_str_len);
   assert_non_null(zone);
